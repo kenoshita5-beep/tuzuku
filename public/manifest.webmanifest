@@ -1,0 +1,18 @@
+{
+  "name": "つづく — 習慣トラッカー",
+  "short_name": "つづく",
+  "description": "習慣を続けるのが楽しくなる習慣トラッカー",
+  "lang": "ja",
+  "dir": "auto",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#111318",
+  "background_color": "#0d0f14",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
