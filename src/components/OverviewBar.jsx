@@ -1,4 +1,4 @@
-export default function OverviewBar({ total, doneToday, bestStreak }) {
+export default function OverviewBar({ total, doneToday, bestStreakValue, bestStreakUnit }) {
   const pct = total > 0 ? Math.round((doneToday / total) * 100) : 0
   return (
     <div className="container">
@@ -14,8 +14,8 @@ export default function OverviewBar({ total, doneToday, bestStreak }) {
         </div>
         <div className="overview-stats">
           <div className="stat">
-            <span className="stat-num">🔥 {bestStreak}</span>
-            <span className="stat-label">最長の継続中ストリーク</span>
+            <span className="stat-num">🔥 {bestStreakValue}{bestStreakUnit}</span>
+            <span className="stat-label">最長の継続ストリーク</span>
           </div>
           <div className="stat">
             <span className="stat-num">{total}</span>

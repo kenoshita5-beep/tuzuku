@@ -264,3 +264,52 @@ button { font-family: inherit; cursor: pointer; }
   .overview-stats { justify-content: space-around; }
   .header-actions .primary-btn span:not(.plus) { display: none; }
 }
+
+/* ===== 目標頻度: セグメント & ステッパー ===== */
+.segmented { display: flex; gap: 6px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 4px; }
+.segment {
+  flex: 1; border: none; background: transparent; color: var(--text-dim);
+  padding: 9px 8px; border-radius: 9px; font-size: 13px; font-weight: 600; transition: var(--transition);
+}
+.segment:hover { color: var(--text); }
+.segment.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+.stepper { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: var(--text-dim); font-size: 14px; }
+.stepper-btn {
+  width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text); font-size: 18px; line-height: 1; transition: var(--transition);
+}
+.stepper-btn:hover { background: var(--surface); transform: translateY(-1px); }
+.stepper-val { font-size: 20px; min-width: 28px; text-align: center; color: var(--text); }
+
+.preview-text { display: flex; flex-direction: column; gap: 2px; }
+.preview-text em { font-style: normal; font-size: 11px; color: var(--text-faint); }
+
+/* ===== バッジ: 目標種別 ===== */
+.badge.goal {
+  color: var(--habit-color, var(--accent));
+  border-color: color-mix(in srgb, var(--habit-color, var(--accent)) 45%, var(--border));
+  background: color-mix(in srgb, var(--habit-color, var(--accent)) 12%, var(--surface-2));
+}
+
+/* ===== 週目標の進捗バー ===== */
+.week-goal-bar { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: 14px; }
+.week-goal-fill { height: 100%; border-radius: 999px; background: var(--habit-color); transition: width .3s ease; }
+
+/* ===== データのバックアップ ===== */
+.data-controls {
+  margin: 20px 0 8px; padding: 16px 18px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.data-controls-head { display: flex; flex-direction: column; gap: 3px; max-width: 380px; }
+.data-controls-title { font-size: 14px; font-weight: 600; }
+.data-controls-note { font-size: 12px; color: var(--text-faint); line-height: 1.5; }
+.data-controls-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+@media (max-width: 520px) {
+  .data-controls { flex-direction: column; align-items: stretch; }
+  .data-controls-actions { justify-content: stretch; }
+  .data-controls-actions .ghost-btn { flex: 1; }
+}

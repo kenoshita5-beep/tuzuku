@@ -8,6 +8,12 @@ export default function HabitForm({ initial, onSave, onClose }) {
   const [emoji, setEmoji] = useState(initial?.emoji || '🌱')
   const [color, setColor] = useState(initial?.color || COLORS[0])
 
+  const initGoal = initial?.goal
+  const [freqType, setFreqType] = useState(initGoal?.type === 'weekly' ? 'weekly' : 'daily')
+  const [weeklyTarget, setWeeklyTarget] = useState(
+    initGoal?.type === 'weekly' ? Math.max(1, Math.min(7, initGoal.target || 3)) : 3
+  )
+
   useEffect(() => {
     function onKey(e) {
       if (e.key === 'Escape') onClose()
@@ -20,7 +26,8 @@ export default function HabitForm({ initial, onSave, onClose }) {
     e.preventDefault()
     const trimmed = name.trim()
     if (!trimmed) return
-    onSave({ id: initial?.id, name: trimmed, emoji, color })
+    const goal = freqType === 'weekly' ? { type: 'weekly', target: weeklyTarget } : { type: 'daily' }
+    onSave({ id: initial?.id, name: trimmed, emoji, color, goal })
   }
 
   return (
@@ -38,6 +45,41 @@ export default function HabitForm({ initial, onSave, onClose }) {
             maxLength={40}
           />
         </label>
+
+        <div className="field">
+          <span>目標の頻度</span>
+          <div className="segmented">
+            <button
+              type="button"
+              className={'segment' + (freqType === 'daily' ? ' active' : '')}
+              onClick={() => setFreqType('daily')}
+            >毎日</button>
+            <button
+              type="button"
+              className={'segment' + (freqType === 'weekly' ? ' active' : '')}
+              onClick={() => setFreqType('weekly')}
+            >週に決めた回数</button>
+          </div>
+          {freqType === 'weekly' && (
+            <div className="stepper">
+              <span>週</span>
+              <button
+                type="button"
+                className="stepper-btn"
+                onClick={() => setWeeklyTarget((n) => Math.max(1, n - 1))}
+                aria-label="回数を減らす"
+              >−</button>
+              <strong className="stepper-val">{weeklyTarget}</strong>
+              <button
+                type="button"
+                className="stepper-btn"
+                onClick={() => setWeeklyTarget((n) => Math.min(7, n + 1))}
+                aria-label="回数を増やす"
+              >＋</button>
+              <span>回</span>
+            </div>
+          )}
+        </div>
 
         <div className="field">
           <span>アイコン</span>
@@ -71,7 +113,10 @@ export default function HabitForm({ initial, onSave, onClose }) {
 
         <div className="preview" style={{ '--habit-color': color }}>
           <span className="preview-icon">{emoji}</span>
-          <span>{name.trim() || 'プレビュー'}</span>
+          <span className="preview-text">
+            {name.trim() || 'プレビュー'}
+            <em>{freqType === 'weekly' ? `週${weeklyTarget}回` : '毎日'}</em>
+          </span>
         </div>
 
         <div className="modal-actions">

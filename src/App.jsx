@@ -1,17 +1,18 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useLocalStorage } from './hooks/useLocalStorage.js'
 import { todayKey } from './lib/date.js'
-import { currentStreak } from './lib/stats.js'
+import { computeStats } from './lib/stats.js'
 import Header from './components/Header.jsx'
 import OverviewBar from './components/OverviewBar.jsx'
 import HabitList from './components/HabitList.jsx'
 import HabitForm from './components/HabitForm.jsx'
 import EmptyState from './components/EmptyState.jsx'
+import DataControls from './components/DataControls.jsx'
 
 const STARTER_HABITS = [
-  { id: 'h_water', name: '水を2L飲む', emoji: '💧', color: '#38bdf8', createdAt: todayKey() },
-  { id: 'h_read', name: '10分読書', emoji: '📖', color: '#a78bfa', createdAt: todayKey() },
-  { id: 'h_walk', name: '散歩する', emoji: '🚶', color: '#34d399', createdAt: todayKey() },
+  { id: 'h_water', name: '水を2L飲む', emoji: '💧', color: '#38bdf8', goal: { type: 'daily' }, createdAt: todayKey() },
+  { id: 'h_read', name: '10分読書', emoji: '📖', color: '#a78bfa', goal: { type: 'daily' }, createdAt: todayKey() },
+  { id: 'h_walk', name: '運動する', emoji: '🏃', color: '#34d399', goal: { type: 'weekly', target: 3 }, createdAt: todayKey() },
 ]
 
 export default function App() {
@@ -57,18 +58,62 @@ export default function App() {
     })
   }
 
+  // データの書き出し（バックアップ）
+  function exportData() {
+    const payload = {
+      app: 'tsuzuku',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      habits,
+      records,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `tsuzuku-backup-${today}.json`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  // データの読み込み（復元）
+  function importData(file) {
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(String(reader.result))
+        if (!Array.isArray(data.habits) || typeof data.records !== 'object' || data.records === null) {
+          throw new Error('ファイルの形式が正しくありません')
+        }
+        const ok = window.confirm(
+          `現在のデータを、読み込むバックアップ（習慣${data.habits.length}件）で置き換えますか？\nこの操作は取り消せません。`
+        )
+        if (ok) {
+          setHabits(data.habits)
+          setRecords(data.records)
+        }
+      } catch (e) {
+        window.alert('読み込みに失敗しました: ' + e.message)
+      }
+    }
+    reader.readAsText(file)
+  }
+
   const doneToday = useMemo(
     () => habits.filter((h) => records[h.id]?.[today]).length,
     [habits, records, today]
   )
 
+  // 最長の継続中ストリーク（毎日=日 / 週N回=週 を区別して最大を選ぶ）
   const bestStreak = useMemo(() => {
-    let max = 0
+    let best = { value: 0, unit: '日' }
     for (const h of habits) {
-      const s = currentStreak(records[h.id] || {})
-      if (s > max) max = s
+      const st = computeStats(h, records[h.id] || {})
+      if (st.streak > best.value) best = { value: st.streak, unit: st.streakUnit }
     }
-    return max
+    return best
   }, [habits, records])
 
   return (
@@ -86,7 +131,8 @@ export default function App() {
         <OverviewBar
           total={habits.length}
           doneToday={doneToday}
-          bestStreak={bestStreak}
+          bestStreakValue={bestStreak.value}
+          bestStreakUnit={bestStreak.unit}
         />
       )}
 
@@ -104,6 +150,10 @@ export default function App() {
             }}
             onDelete={removeHabit}
           />
+        )}
+
+        {habits.length > 0 && (
+          <DataControls onExport={exportData} onImport={importData} />
         )}
       </main>
 
